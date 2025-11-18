@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veefyed Scraper - AI Product Data Extraction</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-icon">🔍</div>
+                <span class="brand-text">Veefyed Scraper</span>
+            </div>
+            <div class="nav-status">
+                <div class="status-indicator" id="statusIndicator">
+                    <div class="status-dot"></div>
+                    <span>Ready</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">AI-Powered Product Scraper</h1>
+                <p class="hero-subtitle">Extract product data from any e-commerce website with intelligent detection and batch processing</p>
+            </div>
+        </section>
+
+        <!-- Scraper Form -->
+        <section class="scraper-section">
+            <div class="scraper-card">
+                <div class="card-header">
+                    <h2>Start Scraping</h2>
+                    <p>Enter a product URL or collection page to begin</p>
+                </div>
+
+                <form id="scrapeForm" class="scraper-form">
+                    <div class="input-group">
+                        <label for="urlInput" class="input-label">Product URL</label>
+                        <div class="input-wrapper">
+                            <input 
+                                type="url" 
+                                id="urlInput" 
+                                class="url-input"
+                                placeholder="https://example.com/products/vitamin-c-serum"
+                                required
+                            >
+                            <div class="input-icon">🌐</div>
+                        </div>
+                    </div>
+
+                    <div class="options-grid">
+                        <div class="option-card">
+                            <div class="option-header">
+                                <div class="option-icon">📦</div>
+                                <div class="option-content">
+                                    <h3>Batch Mode</h3>
+                                    <p>Scrape all products from collection pages</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="scrapeAll">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="option-card">
+                            <div class="option-header">
+                                <div class="option-icon">☁️</div>
+                                <div class="option-content">
+                                    <h3>OneDrive Upload</h3>
+                                    <p>Upload images to cloud storage</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="uploadImages">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="scrape-btn" id="runBtn">
+                        <span class="btn-icon">🚀</span>
+                        <span class="btn-text">Start Scraping</span>
+                        <div class="btn-loader" style="display: none;"></div>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Status Section -->
+        <section id="statusSection" class="status-section" style="display: none;">
+            <div class="status-card">
+                <div class="status-header">
+                    <h3>Scraping Progress</h3>
+                    <button class="close-btn" id="closeStatusBtn">×</button>
+                </div>
+                <div class="status-content">
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">Initializing...</div>
+                    </div>
+                    <div class="status-details" id="statusDetails"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="results-section" style="display: none;">
+            <div class="results-card">
+                <div class="results-header">
+                    <div class="results-title">
+                        <h2>Scraping Complete</h2>
+                        <div class="results-badge" id="resultsBadge">✅ Success</div>
+                    </div>
+                    <div class="results-actions">
+                        <button class="action-btn secondary" id="newScrapeBtn">
+                            <span>➕</span> New Scrape
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results-content">
+                    <!-- Quick Preview -->
+                    <div class="preview-section">
+                        <h3>Quick Preview</h3>
+                        <div class="preview-content" id="previewContent">
+                            <!-- Preview data will be inserted here -->
+                        </div>
+                        <button class="view-details-btn" id="expandPreviewBtn">
+                            View Full Details
+                        </button>
+                    </div>
+
+                    <!-- Download Actions -->
+                    <div class="download-section">
+                        <h3>Download Options</h3>
+                        <div class="download-grid">
+                            <button class="download-btn primary" id="downloadCSVBtn">
+                                <div class="download-icon">📊</div>
+                                <div class="download-content">
+                                    <span class="download-title">CSV Data</span>
+                                    <span class="download-desc">Spreadsheet format</span>
+                                </div>
+                            </button>
+
+                            <button class="download-btn primary" id="downloadJSONBtn">
+                                <div class="download-icon">📄</div>
+                                <div class="download-content">
+                                    <span class="download-title">JSON Data</span>
+                                    <span class="download-desc">Raw data format</span>
+                                </div>
+                            </button>
+
+                            <button class="download-btn primary" id="downloadImagesBtn">
+                                <div class="download-icon">🖼️</div>
+                                <div class="download-content">
+                                    <span class="download-title">Images</span>
+                                    <span class="download-desc">All product images</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- OneDrive Section -->
+                    <div id="oneDriveSection" class="onedrive-section" style="display: none;">
+                        <h3>Cloud Upload</h3>
+                        <div class="onedrive-grid">
+                            <button class="onedrive-btn" id="uploadDataBtn">
+                                <div class="onedrive-icon">☁️</div>
+                                <div class="onedrive-content">
+                                    <span class="onedrive-title">Upload Data</span>
+                                    <span class="onedrive-desc">CSV to OneDrive</span>
+                                </div>
+                            </button>
+
+                            <button class="onedrive-btn" id="uploadImagesBtn">
+                                <div class="onedrive-icon">📤</div>
+                                <div class="onedrive-content">
+                                    <span class="onedrive-title">Upload Images</span>
+                                    <span class="onedrive-desc">Images to OneDrive</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error Section -->
+        <section id="errorSection" class="error-section" style="display: none;">
+            <div class="error-card">
+                <div class="error-header">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-title">
+                        <h3>Scraping Failed</h3>
+                        <p>Something went wrong during the scraping process</p>
+                    </div>
+                    <button class="close-btn" id="closeErrorBtn">×</button>
+                </div>
+                <div class="error-content">
+                    <div class="error-message" id="errorMessage">
+                        <!-- Error details will be inserted here -->
+                    </div>
+                    <button class="error-details-btn" id="showErrorDetailsBtn">
+                        View Error Details
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Full Data Preview Modal -->
+    <div id="dataPreviewModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Product Data Details</h3>
+                <button class="close-btn" id="closePreviewBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="dataPreviewContent" class="data-preview">
+                    <!-- Detailed data will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Details Modal -->
+    <div id="errorDetailsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Error Details</h3>
+                <button class="close-btn" id="closeErrorDetailsBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="errorDetailsContent" class="error-details">
+                    <!-- Error details will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

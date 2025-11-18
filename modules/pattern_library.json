@@ -1,0 +1,79 @@
+{
+  "ecommerce_skincare": {
+    "description": "Pattern for e-commerce skincare product websites",
+    "selectors": {
+      "product_name": ["h1.product-title", "h1.product-name", ".product-title", "h1[itemprop='name']", ".title"],
+      "product_description": [".product-description", ".description", "[itemprop='description']", ".product-details", "div.desc"],
+      "price": [".price", "span.amount", ".product-price", "[itemprop='price']"],
+      "product_image_url": ["img.product-image", ".main-image img", "[itemprop='image']", ".product-img"],
+      "product_images": ["img.gallery-image", ".product-gallery img", ".thumbnail img"],
+      "brand_name": [".brand", ".brand-name", "[itemprop='brand']", ".manufacturer"],
+      "ingredients": [".ingredients", ".ingredient-list", ".composition"],
+      "package_size": [".size", ".package-size", ".volume", ".weight"],
+      "barcode": [".barcode", ".upc", ".ean", "[data-barcode]"],
+      "product_id": [".sku", ".product-code", "[itemprop='sku']", ".product-id"],
+      "category": [".category", ".breadcrumb a", "[itemprop='category']"],
+      "rating": [".rating", ".stars", "[itemprop='ratingValue']"],
+      "review_count": [".review-count", ".reviews", "[itemprop='reviewCount']"],
+      "stock_quantity": [".stock", ".availability", ".in-stock"],
+      "skin_type": [".skin-type", ".suitable-for"],
+      "skin_concerns": [".skin-concerns", ".targets", ".benefits"],
+      "key_ingredients": [".key-ingredients", ".hero-ingredients", ".active-ingredients"],
+      "use_instructions": [".directions", ".how-to-use", ".instructions"],
+      "warnings": [".warnings", ".cautions", ".disclaimer"],
+      "precautions": [".precautions", ".safety"],
+      "country_of_origin": [".origin", ".made-in", ".country"]
+    },
+    "pagination": {
+      "next_page": ["a.next", ".pagination-next", "a[rel='next']", ".next-page"],
+      "page_numbers": [".pagination a", ".page-numbers a"]
+    },
+    "libraries": ["requests", "beautifulsoup4", "lxml"],
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+  },
+  "amazon_products": {
+    "description": "Pattern for Amazon product pages",
+    "selectors": {
+      "product_name": ["#productTitle", "h1.product-title"],
+      "product_description": ["#feature-bullets", "#productDescription", ".product-description"],
+      "price": ["#priceblock_ourprice", ".a-price-whole", "#priceblock_dealprice"],
+      "product_image_url": ["#landingImage", "#imgBlkFront"],
+      "product_images": [".imageThumbnail img", ".altImages img"],
+      "brand_name": ["#bylineInfo", ".a-link-normal.brand"],
+      "ingredients": ["#ingredients", ".ingredients-list"],
+      "rating": ["#acrPopover", ".a-icon-star .a-icon-alt"],
+      "review_count": ["#acrCustomerReviewText"],
+      "product_id": ["[data-asin]"]
+    },
+    "libraries": ["requests", "beautifulsoup4", "selenium"],
+    "requires_js": true
+  },
+  "shopify_store": {
+    "description": "Pattern for Shopify-based stores",
+    "selectors": {
+      "product_name": ["h1.product-title", ".product-single__title"],
+      "product_description": [".product-single__description", ".product-description"],
+      "price": [".product__price", ".price-item--regular"],
+      "product_image_url": [".product-single__photo img", ".product__main-photos img"],
+      "brand_name": [".vendor", ".product-vendor"],
+      "product_id": ["[data-product-id]"]
+    },
+    "libraries": ["requests", "beautifulsoup4"],
+    "requires_js": false
+  },
+  "generic_ecommerce": {
+    "description": "Generic fallback pattern for any e-commerce site",
+    "selectors": {
+      "product_name": ["h1", ".product-name", ".title"],
+      "product_description": [".description", ".product-description", "p"],
+      "price": [".price", ".amount", ".cost"],
+      "product_image_url": ["img[src*='product']", "img[alt*='product']", ".image img"],
+      "brand_name": [".brand", ".manufacturer", ".vendor"]
+    },
+    "libraries": ["requests", "beautifulsoup4"],
+    "requires_js": false
+  }
+}
+

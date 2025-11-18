@@ -1,0 +1,13 @@
+[program:veefyed-scraper]
+command=/home/USERNAME/veefyed-scraper/scraper/venv/bin/python /home/USERNAME/veefyed-scraper/scraper/app.py
+directory=/home/USERNAME/veefyed-scraper/scraper
+user=USERNAME
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+stderr_logfile=/home/USERNAME/veefyed-scraper/scraper/data/logs/scraper_error.log
+stdout_logfile=/home/USERNAME/veefyed-scraper/scraper/data/logs/scraper.log
+environment=PATH="/home/USERNAME/veefyed-scraper/scraper/venv/bin"
+stopwaitsecs=10
+

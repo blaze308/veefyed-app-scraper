@@ -1,0 +1,39 @@
+# Auto-Scraper AI Tool - Python Dependencies (Swiss Army Knife Edition)
+# Install with: pip install -r requirements.txt
+
+# Web Framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+python-multipart>=0.0.6
+
+# Web Scraping - Core
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Web Scraping - JavaScript Rendering
+selenium>=4.15.0
+undetected-chromedriver>=3.5.0
+webdriver-manager>=4.0.0
+
+# Templates
+jinja2>=3.1.0
+
+# Validation
+pydantic>=2.0.0
+email-validator>=2.0.0
+
+# Development
+python-dotenv>=1.0.0
+
+# Optional: Data Processing (CSV export)
+# pandas>=2.0.0
+
+# Image processing and ZIP creation
+pillow>=10.0.0
+
+# Note: Chrome/Chromium browser must be installed for Selenium to work
+# Windows: https://www.google.com/chrome/
+# Linux: sudo apt-get install chromium-browser
+# Mac: brew install --cask google-chrome
+
