@@ -65,20 +65,21 @@ chmod -R 755 data
 
 # Restart application
 print_success "Restarting application..."
-if command -v supervisorctl &> /dev/null; then
-    sudo supervisorctl restart veefyed-scraper
-    print_success "Application restarted via Supervisor"
+if systemctl is-active --quiet veefyed-scraper 2>/dev/null || systemctl list-unit-files | grep -q veefyed-scraper; then
+    sudo systemctl restart veefyed-scraper
+    print_success "Application restarted via systemd"
 else
-    print_warning "Supervisor not found. Please restart manually:"
-    echo "  nohup python app.py > data/logs/scraper.log 2>&1 &"
+    print_warning "Systemd service not found. Please restart manually:"
+    echo "  sudo systemctl restart veefyed-scraper"
+    echo "  Or: nohup python app.py > data/logs/scraper.log 2>&1 &"
 fi
 
 # Check application status
 print_success "Checking application status..."
 sleep 3
 
-if command -v supervisorctl &> /dev/null; then
-    sudo supervisorctl status veefyed-scraper
+if systemctl list-unit-files | grep -q veefyed-scraper; then
+    sudo systemctl status veefyed-scraper --no-pager -l
 fi
 
 # Test health endpoint

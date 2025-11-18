@@ -849,6 +849,12 @@ async def get_download_folder_info(download_id: str):
 if __name__ == '__main__':
     import uvicorn
     
+    # Disable reload in production (when running as systemd service)
+    reload_enabled = os.getenv('DEBUG', 'False').lower() == 'true'
+    host = os.getenv('HOST', '0.0.0.0')
+    port = int(os.getenv('PORT', 8000))
+    
     logger.info("Starting Auto-Scraper AI Tool")
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    logger.info(f"Running on {host}:{port} (reload={reload_enabled})")
+    uvicorn.run("app:app", host=host, port=port, reload=reload_enabled)
 
