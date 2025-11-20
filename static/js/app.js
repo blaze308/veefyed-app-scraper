@@ -45,9 +45,18 @@ const uploadImagesBtn = document.getElementById('uploadImagesBtn');
 document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
     scrapeForm.addEventListener('submit', handleScrapeSubmit);
-    downloadCSVBtn.addEventListener('click', () => handleDownload('csv'));
-    downloadJSONBtn.addEventListener('click', () => handleDownload('json'));
-    downloadImagesBtn.addEventListener('click', handleDownloadImages);
+    downloadCSVBtn.addEventListener('click', () => {
+        console.log('CSV download button clicked');
+        handleDownload('csv');
+    });
+    downloadJSONBtn.addEventListener('click', () => {
+        console.log('JSON download button clicked');
+        handleDownload('json');
+    });
+    downloadImagesBtn.addEventListener('click', () => {
+        console.log('Images download button clicked');
+        handleDownloadImages();
+    });
     expandPreviewBtn.addEventListener('click', handleViewData);
     closePreviewBtn.addEventListener('click', () => hideModal(dataPreviewModal));
     closeStatusBtn.addEventListener('click', () => hideElement(statusSection));
@@ -57,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     newScrapeBtn.addEventListener('click', resetForm);
     uploadDataBtn.addEventListener('click', handleUploadData);
     uploadImagesBtn.addEventListener('click', handleUploadImages);
+    
     
     // Update status indicator
     updateStatusIndicator('Ready', 'success');
@@ -262,10 +272,19 @@ function showBatchPreview(products) {
 
 // Download handlers
 async function handleDownload(format) {
-    if (!currentJobId) return;
+    console.log('handleDownload called with format:', format);
+    console.log('currentJobId:', currentJobId);
+    
+    if (!currentJobId) {
+        console.error('No current job ID available');
+        showError('No scraping job available. Please run a scrape first.');
+        return;
+    }
     
     try {
+        console.log('Fetching download URL:', `${API_BASE}/api/download/${currentJobId}/${format}`);
         const response = await fetch(`${API_BASE}/api/download/${currentJobId}/${format}`);
+        console.log('Download response status:', response.status);
         
         if (response.ok) {
             const blob = await response.blob();
@@ -279,60 +298,96 @@ async function handleDownload(format) {
             document.body.removeChild(a);
             
             updateStatusIndicator('Downloaded', 'success');
+            console.log('Download completed successfully');
         } else {
-            throw new Error('Download failed');
+            const errorText = await response.text();
+            console.error('Download failed with response:', errorText);
+            throw new Error(`Download failed: ${response.status} ${response.statusText}`);
         }
     } catch (error) {
-        console.error('Error:', error);
-        showError('Failed to download file');
+        console.error('Download error:', error);
+        showError('Failed to download file: ' + error.message);
     }
 }
 
 async function handleDownloadImages() {
-    if (!currentJobId) return;
+    console.log('handleDownloadImages called');
+    console.log('currentJobId:', currentJobId);
+    
+    if (!currentJobId) {
+        console.error('No current job ID available for image download');
+        showError('No scraping job available. Please run a scrape first.');
+        return;
+    }
+    
+    // Show progress modal immediately with preparing message
+    const downloadId = `${currentJobId}_images`;
+    showImageDownloadProgress(downloadId, true); // true = preparing mode
     
     try {
+        console.log('Starting image download for job:', currentJobId);
         // Start the download process
         const response = await fetch(`${API_BASE}/api/download/${currentJobId}/images`);
+        console.log('Image download response status:', response.status);
         
         if (response.ok) {
             const data = await response.json();
-            const downloadId = data.download_id;
+            const actualDownloadId = data.download_id;
+            console.log('Image download started with ID:', actualDownloadId);
             
-            // Show progress modal
-            showImageDownloadProgress(downloadId);
+            // Update modal to show actual progress
+            showImageDownloadProgress(actualDownloadId, false); // false = normal mode
             
         } else {
             const errorData = await response.json();
+            console.error('Image download failed:', errorData);
+            closeImageProgressModal();
             showError(errorData.detail || 'Failed to start image download');
         }
     } catch (error) {
+        console.error('Image download error:', error);
+        closeImageProgressModal();
         showError('Failed to start image download: ' + error.message);
     }
 }
 
 // Image download progress modal
-function showImageDownloadProgress(downloadId) {
+function showImageDownloadProgress(downloadId, preparing = false) {
+    console.log('showImageDownloadProgress called with ID:', downloadId, 'preparing:', preparing);
+    
     // Create progress modal if it doesn't exist
     let progressModal = document.getElementById('imageProgressModal');
     
     if (!progressModal) {
+        console.log('Creating new progress modal');
         progressModal = document.createElement('div');
         progressModal.id = 'imageProgressModal';
         progressModal.className = 'modal';
+        progressModal.style.cssText = `
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        `;
         progressModal.innerHTML = `
-            <div class="modal-content" style="max-width: 500px;">
-                <div class="modal-header">
-                    <h3>📥 Downloading Images</h3>
-                    <button class="close-btn" onclick="closeImageProgressModal()">&times;</button>
+            <div class="modal-content" style="max-width: 500px; max-height: 80vh; overflow-y: auto; background: white; border-radius: 8px; padding: 0;">
+                <div class="modal-header" style="padding: 1rem; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0;">📥 Downloading Images</h3>
+                    <button class="close-btn" onclick="closeImageProgressModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 1rem;">
                     <div class="progress-container">
-                        <div class="progress-bar">
-                            <div id="imageProgressFill" class="progress-fill" style="width: 0%"></div>
+                        <div class="progress-bar" style="width: 100%; height: 20px; background: #e5e7eb; border-radius: 10px; overflow: hidden; margin-bottom: 1rem;">
+                            <div id="imageProgressFill" class="progress-fill" style="width: 0%; height: 100%; background: #3b82f6; transition: width 0.3s ease;"></div>
                         </div>
-                        <div id="imageProgressText" class="progress-text">Initializing...</div>
-                        <div id="imageProgressStats" class="progress-stats"></div>
+                        <div id="imageProgressText" class="progress-text" style="margin-bottom: 0.5rem; font-weight: 500;">Initializing...</div>
+                        <div id="imageProgressStats" class="progress-stats" style="font-size: 0.875rem; color: #666;"></div>
                     </div>
                     <div id="imageDownloadComplete" class="download-complete" style="display: none;">
                         <div class="success-message">✅ Download completed!</div>
@@ -341,16 +396,33 @@ function showImageDownloadProgress(downloadId) {
             </div>
         `;
         document.body.appendChild(progressModal);
+        console.log('Progress modal created and added to DOM');
+    } else {
+        console.log('Using existing progress modal');
+        // Reset the modal content
+        const progressFill = document.getElementById('imageProgressFill');
+        const progressText = document.getElementById('imageProgressText');
+        const progressStats = document.getElementById('imageProgressStats');
+        const downloadComplete = document.getElementById('imageDownloadComplete');
+        
+        if (progressFill) progressFill.style.width = '0%';
+        if (progressText) progressText.textContent = preparing ? 'Preparing download...' : 'Initializing...';
+        if (progressStats) progressStats.innerHTML = preparing ? '<div>📋 Setting up image download process...</div>' : '';
+        if (downloadComplete) downloadComplete.style.display = 'none';
     }
     
     // Show modal
+    console.log('Showing progress modal');
     progressModal.style.display = 'flex';
     
-    // Start polling for progress
-    pollImageDownloadProgress(downloadId);
+    // Start polling for progress (only if not in preparing mode)
+    if (!preparing) {
+        pollImageDownloadProgress(downloadId);
+    }
 }
 
 async function pollImageDownloadProgress(downloadId) {
+    console.log('Starting progress polling for download ID:', downloadId);
     const progressFill = document.getElementById('imageProgressFill');
     const progressText = document.getElementById('imageProgressText');
     const progressStats = document.getElementById('imageProgressStats');
@@ -358,29 +430,44 @@ async function pollImageDownloadProgress(downloadId) {
     
     const poll = async () => {
         try {
+            console.log('Polling progress for:', downloadId);
             const response = await fetch(`${API_BASE}/api/download/${downloadId}/progress`);
+            console.log('Progress response status:', response.status);
             
             if (!response.ok) {
+                console.error('Progress API error:', response.status, response.statusText);
                 progressText.textContent = `❌ Error checking progress: ${response.status}`;
                 return;
             }
             
             const progress = await response.json();
+            console.log('Progress data received:', progress);
             
             // Update progress bar
             const percentage = Math.round(progress.percentage || 0);
+            console.log('Updating progress bar to:', percentage + '%');
             progressFill.style.width = `${percentage}%`;
             
             // Update text
             progressText.textContent = progress.message || 'Processing...';
+            console.log('Updated progress text to:', progress.message);
             
             // Update stats
             if (progress.total > 0) {
                 const downloadedSize = formatFileSize(progress.downloaded_size || 0);
                 const totalSize = formatFileSize(progress.total_size || 0);
-                progressStats.innerHTML = `
+                const statsHTML = `
                     <div>Images: ${progress.completed}/${progress.total}</div>
                     <div>Size: ${downloadedSize} / ${totalSize}</div>
+                    ${progress.failed > 0 ? `<div style="color: var(--error);">Failed: ${progress.failed}</div>` : ''}
+                `;
+                progressStats.innerHTML = statsHTML;
+                console.log('Updated stats:', statsHTML);
+            } else {
+                console.log('No total count available yet, showing basic stats');
+                progressStats.innerHTML = `
+                    <div>Status: ${progress.status}</div>
+                    <div>Completed: ${progress.completed || 0}</div>
                     ${progress.failed > 0 ? `<div style="color: var(--error);">Failed: ${progress.failed}</div>` : ''}
                 `;
             }
@@ -439,6 +526,7 @@ function closeImageProgressModal() {
         modal.style.display = 'none';
     }
 }
+
 
 // View full data - User-friendly view
 async function handleViewData() {
